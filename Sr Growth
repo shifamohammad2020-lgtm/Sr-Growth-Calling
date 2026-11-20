@@ -1,0 +1,47 @@
+You are a senior full-stack and mobile engineer. Build a complete, production-quality, ad-free social calling and messaging app called "APP_NAME" (rename via a single config constant). It is an imo-style app: free voice/video calls plus chat. Do NOT copy any third-party branding, logos, or stickers. Create original UI and assets.
+
+## Tech stack
+- React + Vite + TypeScript + Tailwind CSS
+- Firebase: Authentication (Email/Password, Google, Phone OTP), Firestore, Storage, Cloud Messaging (FCM)
+- WebRTC for voice/video calls, with Firestore used for signaling
+- Capacitor to wrap the web app as an Android APK
+- GitHub Actions to build the APK in the cloud
+- No ad SDKs, no tracking SDKs, no ads anywhere
+
+## Branding
+- Colors: Black (#0A0A0A), White (#FFFFFF), Silver (#C0C0C0), Red (#E10600)
+- Premium, modern, dark-first UI with a light mode toggle
+- Use a placeholder logo at /src/assets/logo.svg that is easy to replace
+- UI languages: English and Bengali (i18n, switchable in settings)
+
+## Version 1 features (build all of these fully, no mock data)
+1. Auth: email/password, Google sign-in, phone + SMS OTP with country code picker. Email verification. Unique username. Optional profile picture. Public registration, no admin approval.
+2. Profiles and search: find users by username or phone number; add/remove contacts; block and report users.
+3. 1-to-1 chat: real-time text, images, voice messages, file sharing, sent/delivered/read status, online/last-seen status, typing indicator.
+4. 1-to-1 voice and video calls using WebRTC: call, accept, reject, end, mute, camera on/off, switch camera, speaker toggle, call timer, call history (missed/incoming/outgoing).
+5. Incoming call experience: FCM high-priority push notification plus a full-screen incoming-call screen on Android when the app is in the background. If a platform limitation prevents full-screen ringing, implement the best working fallback and document it in README.
+6. Settings: profile edit, privacy (last seen, read receipts), blocked users, language, theme, logout, delete account.
+7. Roles: a single SUPER_ADMIN role stored in Firestore, assigned only through a backend/manual process. Public users can never assign themselves any admin role. Include a simple admin screen for viewing reports and disabling accounts.
+
+## Calls: technical requirements
+- Use STUN servers from env config, and TURN server credentials from env variables (VITE_TURN_URL, VITE_TURN_USERNAME, VITE_TURN_CREDENTIAL). Do not hard-code secrets.
+- Handle offer/answer/ICE candidates through Firestore, clean up call documents after the call ends, handle timeouts, busy state, and reconnects.
+- Design the calling module so group calls can be added later (version 2).
+
+## Security
+- Write complete firestore.rules and storage.rules: users can only read/write their own profile data; chat messages only readable by participants; blocked users cannot message or call; role fields cannot be changed by clients.
+- Validate all inputs, rate-limit sensitive actions where possible.
+- Keep all Firebase config in .env files with a .env.example committed. Never commit secrets.
+
+## Android APK build
+- Configure Capacitor for Android (appId com.srgrowth.appname, configurable).
+- Create .github/workflows/android-build.yml that, on push to main and on manual dispatch: installs Node and JDK, builds the web app, runs `npx cap sync android`, builds a debug APK with Gradle, and uploads it as a downloadable workflow artifact.
+- Add an optional release-signing job that reads the keystore and passwords from GitHub Secrets.
+- Request only necessary Android permissions (camera, microphone, notifications, internet, network state).
+
+## Deliverables
+- Full project structure with clean, commented, working code
+- README.md with: Firebase setup steps, required console settings (enabled sign-in providers, Firestore, Storage, FCM, SHA-1 fingerprint for Android), environment variables list, how to run locally, how to download the APK from GitHub Actions, and known limitations
+- A short TODO.md listing version 2 features: group calls, Stories, channels, disappearing messages, screen sharing, low-data mode
+
+Work step by step. First create the project skeleton and CI workflow, then auth, then chat, then calls, then push notifications. Make sure the project builds with no errors before finishing.
